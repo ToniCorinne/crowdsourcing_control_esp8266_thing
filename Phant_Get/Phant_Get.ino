@@ -1,10 +1,10 @@
 /******************************************************************************
-HackaDay Super Conference Phant_Post
+HackaDay Super Conference Phant_Pull
 Toni Klopfenstein @ SparkFun Electronics
 OCtober 2015
 <github repository address>
 
-Sketch to post data to Phant on the ESP8266 Thing.
+Sketch to pull data from Phant on the ESP8266 Thing.
 
 Resources:
 ESP8266 Arduino Add-On Required
@@ -20,7 +20,7 @@ Distributed as-is; no warranty is given.
 ******************************************************************************/
 
 #include <ESP8266WiFi.h>
-#include <Phant.h>
+
 
 //////////////////////
 // WiFi Definitions //
@@ -36,18 +36,6 @@ const int ESP8266_Analog = A0;
 const int ESP8266_Button = 12;
 const int ESP8266_LED = 4;
 
-////////////////
-// Phant Keys //
-////////////////
-const char PhantHost[] = "data.sparkfun.com";
-const char PublicKey[] = "wpvZ9pE1qbFJAjaGd3bn";
-const char PrivateKey[] = "wzeB1z0xWNt1YJX27xdg";
-
-/////////////////
-// Post Timing //
-/////////////////
-const unsigned long postRate = 30000;
-unsigned long lastPost = 0;
 
 /////////////////////
 //  WiFi Function  //
@@ -82,54 +70,21 @@ void connectWiFi()
   }
 }
 
-//////////////////////////
-// Phant Post Function  //
-//////////////////////////
-int postToPhant()
-{
-  // Onboard LED turns on when we enter, it'll go off when we 
-  // successfully post.
-  digitalWrite(ESP8266_LED, HIGH);
+///////////////////////
+// GET from Phant   //
+///////////////////////
+getPhant(){
 
-  // Declare an object from the Phant library - phant
-  Phant phant(PhantHost, PublicKey, PrivateKey);
 
-  // Do a little work to get a unique-ish name. Append the
-  // last two bytes of the MAC (HEX'd) to "Thing-":
-  uint8_t mac[WL_MAC_ADDR_LENGTH];
-  WiFi.macAddress(mac);
-  String macID = String(mac[WL_MAC_ADDR_LENGTH - 2], HEX) +
-                 String(mac[WL_MAC_ADDR_LENGTH - 1], HEX);
-  macID.toUpperCase();
-  String postedID = "Thing-" + macID;
-
-  // Add the four field/value pairs defined by our stream:
-  phant.add("id", postedID);
-  phant.add("analog", analogRead(ESP8266_Analog));
-  phant.add("digital", digitalRead(ESP8266_Button));
-  phant.add("time", millis());
-
-  // Now connect to data.sparkfun.com, and post our data:
-  WiFiClient client;
-  const int httpPort = 80;
-  if (!client.connect(PhantHost, httpPort)) 
-  {
-    // If we fail to connect, return 0.
-    return 0;
-  }
-  // If we successfully connected, print our Phant post:
-  client.print(phant.post());
-
-  // Read all the lines of the reply from server and print them to Serial
-  while(client.available()){
-    String line = client.readStringUntil('\r');
-  }
-
-  // Before we exit, turn the LED off.
-  digitalWrite(ESP8266_LED, LOW);
-
-  return 1; // Return success
+// Construct HTTP GET request
+  String result = "GET /output" + _pub + ".csv?page=;
+  cmd += " HTTP/1.1\nHost: ";
+  cmd += http_site;
+  cmd += "\nConnection: close\n\n";
+  
 }
+
+
 
 /////////////////
 // Setup Loop  //
@@ -141,18 +96,14 @@ void setup() {
   digitalWrite(ESP8266_LED, LOW);
   digitalWrite(ESP8266_OnBoardLED, LOW);
   connectWiFi();
+
+  
 }
 
 /////////////////
 //  Main Loop  //
 /////////////////
 void loop() {
- if (lastPost + postRate <= millis())
-  {
-    if (postToPhant())
-      lastPost = millis();
-    else
-      delay(100);    
-  }
+
 }
 

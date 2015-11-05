@@ -29,7 +29,7 @@ const int ESP8266_LED = 4;
 void setup() {
   
   pinMode(ESP8266_OnBoardLED, OUTPUT);
-  pinMode(ESP8266_Analog, INPUT);
+  //pinMode(ESP8266_Analog, INPUT);
   pinMode(ESP8266_Button, INPUT);
   pinMode(ESP8266_LED, OUTPUT);
 }
@@ -39,10 +39,11 @@ void loop() {
   int input = analogRead(ESP8266_Analog);
   analogWrite(ESP8266_LED, input);
   
+  digitalWrite(ESP8266_OnBoardLED, LOW);
+  
   while (digitalRead(ESP8266_Button)==LOW)
   {
     digitalWrite(ESP8266_OnBoardLED, HIGH);
-    digitalWrite(ESP8266_OnBoardLED, LOW);
   }
 
 }
