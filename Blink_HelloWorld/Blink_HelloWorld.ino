@@ -20,31 +20,30 @@ or concerns with licensing, please contact techsupport@sparkfun.com.
 Distributed as-is; no warranty is given.
 ******************************************************************************/
 
-const int ESP8266_LED = 5;
+const int ESP8266_OnBoardLED = 5;
 const int ESP8266_Analog = A0;
-const int ESP8266_Digital = 12;
+const int ESP8266_Button = 12;
+const int ESP8266_LED = 4;
 
 
 void setup() {
   
-  pinMode(ESP8266_LED, OUTPUT);
+  pinMode(ESP8266_OnBoardLED, OUTPUT);
   pinMode(ESP8266_Analog, INPUT);
-  pinMode(ESP8266_Digital, INPUT);
-  Serial.begin(9600);
-  Serial.println("Hello World!");
-  
+  pinMode(ESP8266_Button, INPUT);
+  pinMode(ESP8266_LED, OUTPUT);
 }
 
 void loop() {
 
-  Serial.print("Analog: ");
-  Serial.println(analogRead(ESP8266_Analog));
+  int input = analogRead(ESP8266_Analog);
+  analogWrite(ESP8266_LED, input);
   
-  Serial.print("Digital: ");
-  Serial.println(digitalRead(ESP8266_Digital));
-  
-  digitalWrite(ESP8266_LED, HIGH);
-  delay(500);
-  digitalWrite(ESP8266_LED, LOW);
-  delay(500);
+  while (digitalRead(ESP8266_Button)==LOW)
+  {
+    digitalWrite(ESP8266_OnBoardLED, HIGH);
+    digitalWrite(ESP8266_OnBoardLED, LOW);
+  }
+
 }
+
