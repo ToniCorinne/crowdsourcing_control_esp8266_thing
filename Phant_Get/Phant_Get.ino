@@ -89,19 +89,36 @@ void connectWiFi()
 void getPhant(){
   
   // Onboard LED turns on when we enter, it'll go off when we 
-  // successfully post.
+  // successfully GET data.
   digitalWrite(ESP8266_LED, HIGH);
+  
+  // Use WiFiClient class to create TCP connections
+  WiFiClient client;
+  const int httpPort = 80;
+  if (!client.connect(PhantHost, httpPort)) {
+    return;
+  }
+  
+ // Construct HTTP GET request
+  String url = "/output/";
+  url += PublicKey;
+  url += "/latest.csv";
 
-  // Declare an object from the Phant library - phant
-  Phant phant(PhantHost, PublicKey, PrivateKey);
-
-// Construct HTTP GET request
-  String feedback = "GET /output" + PublicKey + ".csv?page=1";
-  feedback += " HTTP/1.1\n Host: ";
-  feedback += http_site;
-  feedback += "\n Connection: close\n\n";
-
-  Serial.print(result); 
+  
+  Serial.print("Requesting URL: ");
+  Serial.println(url);
+  
+  // This will send the request to the server
+  client.print(String("GET ") + url + " HTTP/1.1\r\n" +
+               "Host: " + PhantHost + "\r\n" + 
+               "Connection: close\r\n\r\n");
+  delay(10);
+  
+  // Read all the lines of the reply from server and print them to Serial
+  while(client.available()){
+    String line = client.readStringUntil('\r');
+    Serial.print(line);
+  }
 }
 
 
@@ -110,7 +127,6 @@ void getPhant(){
 // Setup Loop  //
 /////////////////
 void setup() {
-  pinMode(ESP8266_Button, INPUT);
   pinMode(ESP8266_LED, OUTPUT);
   pinMode(ESP8266_OnBoardLED, OUTPUT);
   digitalWrite(ESP8266_LED, LOW);
@@ -126,6 +142,7 @@ void setup() {
 void loop() {
   
   getPhant();
+
   delay(500);
 
 }
