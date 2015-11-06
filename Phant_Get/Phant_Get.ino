@@ -1,5 +1,5 @@
 /******************************************************************************
-HackaDay Super Conference Phant_Pull
+HackaDay Super Conference Phant_Get
 Toni Klopfenstein @ SparkFun Electronics
 OCtober 2015
 <github repository address>
@@ -20,7 +20,7 @@ Distributed as-is; no warranty is given.
 ******************************************************************************/
 
 #include <ESP8266WiFi.h>
-
+#include <Phant.h>
 
 //////////////////////
 // WiFi Definitions //
@@ -32,9 +32,22 @@ const char WiFiPSK[] = "sparkfun6333";
 // Pin Definitions //
 /////////////////////
 const int ESP8266_OnBoardLED = 5;
-const int ESP8266_Analog = A0;
-const int ESP8266_Button = 12;
 const int ESP8266_LED = 4;
+
+
+////////////////
+// Phant Keys //
+////////////////
+const char PhantHost[] = "data.sparkfun.com";
+const char PublicKey[] = "wpvZ9pE1qbFJAjaGd3bn";
+const char PrivateKey[] = "wzeB1z0xWNt1YJX27xdg";
+
+
+/////////////////
+// Get Timing  //
+/////////////////
+const unsigned long getRate = 30000;
+unsigned long lastGet = 0;
 
 
 /////////////////////
@@ -73,15 +86,22 @@ void connectWiFi()
 ///////////////////////
 // GET from Phant   //
 ///////////////////////
-getPhant(){
+void getPhant(){
+  
+  // Onboard LED turns on when we enter, it'll go off when we 
+  // successfully post.
+  digitalWrite(ESP8266_LED, HIGH);
 
+  // Declare an object from the Phant library - phant
+  Phant phant(PhantHost, PublicKey, PrivateKey);
 
 // Construct HTTP GET request
-  String result = "GET /output" + _pub + ".csv?page=;
-  cmd += " HTTP/1.1\nHost: ";
-  cmd += http_site;
-  cmd += "\nConnection: close\n\n";
-  
+  String feedback = "GET /output" + PublicKey + ".csv?page=1";
+  feedback += " HTTP/1.1\n Host: ";
+  feedback += http_site;
+  feedback += "\n Connection: close\n\n";
+
+  Serial.print(result); 
 }
 
 
@@ -96,7 +116,7 @@ void setup() {
   digitalWrite(ESP8266_LED, LOW);
   digitalWrite(ESP8266_OnBoardLED, LOW);
   connectWiFi();
-
+  Serial.begin(115200);
   
 }
 
@@ -104,6 +124,9 @@ void setup() {
 //  Main Loop  //
 /////////////////
 void loop() {
+  
+  getPhant();
+  delay(500);
 
 }
 
