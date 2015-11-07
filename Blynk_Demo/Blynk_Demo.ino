@@ -13,6 +13,8 @@ Blynk app
 Development environment specifics:
 Arduino 1.6.5+ with the ESP8266 Thing()
 
+Based on BlynkBlink example by Blynk,2015
+
 This code is released under the [MIT License](http://opensource.org/licenses/MIT).
 Please review the LICENSE.md file included with this example. If you have any questions 
 or concerns with licensing, please contact techsupport@sparkfun.com.
@@ -39,7 +41,7 @@ char auth[] = "64a41877dee64ba497d4ba701cd4fd5a";
 void setup() 
 {
   
-  Blynk.begin(auth, "sparkfun-guest", "sparkfun6333");
+  Blynk.begin(auth, "3815", "Jkdk1985");
   
 }
 

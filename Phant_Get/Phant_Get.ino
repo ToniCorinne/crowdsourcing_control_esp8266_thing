@@ -12,6 +12,8 @@ ESP8266 Arduino Add-On Required
 Development environment specifics:
 Arduino 1.6.5+ with the ESP8266 Thing()
 
+Based on ESP8266_Phant example by Jim Lindblom, SparkFun Electronics 2015
+
 This code is released under the [MIT License](http://opensource.org/licenses/MIT).
 Please review the LICENSE.md file included with this example. If you have any questions 
 or concerns with licensing, please contact techsupport@sparkfun.com.
