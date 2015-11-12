@@ -35,19 +35,31 @@ Distributed as-is; no warranty is given.
 #include <ESP8266WiFi.h>
 #include <BlynkSimpleEsp8266.h>
 
+
+const int ESP8266_Button = 12;
+WidgetLCD lcd(1);
+
 // You should get Auth Token in the Blynk App. Go to the Project Settings (nut icon).
 char auth[] = "64a41877dee64ba497d4ba701cd4fd5a";
 
 void setup() 
 {
   
-  Blynk.begin(auth, "3815", "Jkdk1985");
-  
+  Blynk.begin(auth, "sparkfun-guest", "sparkfun6333");
+  pinMode(ESP8266_Button, INPUT_PULLUP);
 }
 
-
+void checkButton()
+{
+  if (digitalRead(ESP8266_Button) == LOW){
+    lcd.print(0, 1, "B1 Pushed!");
+    delay(500);
+  }
+  lcd.clear();
+}
 
 void loop() 
 {
   Blynk.run();
+  checkButton();
 }
