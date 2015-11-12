@@ -26,89 +26,137 @@ Distributed as-is; no warranty is given.
 //////////////////////
 // WiFi Definitions //
 //////////////////////
-const char WiFiSSID[] = "ESP8266 Thing - YOUR NAME macID";
-const char WiFiPSK[] = "superconference15";
-const char ledOn[] = "192.168.4.1/led/0";
-const char ledOff[] = "192.168.4.1/led/1";
-const int httpPort = 80;
+const char WiFiAPPSK[] = "sanfran15";
+
+WiFiServer server(80);
 
 /////////////////////
 // Pin Definitions //
 /////////////////////
-const int ESP8266_OnBoardLED = 5;
-const int ESP8266_ButtonOne = 4;
-const int ESP8266_ButtonTwo = 12;
+const int ESP8266_OnBoardLED = 5; 
+const int ESP8266_LED_Green = 0;
+const int ESP8266_LED_Red = 4;
+const int ESP8266_LED_Blue = 13;
 
 /////////////////////
 //  WiFi Function  //
 /////////////////////
-void connectWiFi()
+void setupWiFi()
 {
-  byte ledStatus = LOW;
+  WiFi.mode(WIFI_AP);
 
-  // Set WiFi mode to station (as opposed to AP or AP_STA)
-  WiFi.mode(WIFI_STA);
+  // Do a little work to get a unique-ish name. Append the
+  // last two bytes of the MAC (HEX'd) to "ThingDev-":
+  uint8_t mac[WL_MAC_ADDR_LENGTH];
+  WiFi.softAPmacAddress(mac);
+  String macID = String(mac[WL_MAC_ADDR_LENGTH - 2], HEX) +
+                 String(mac[WL_MAC_ADDR_LENGTH - 1], HEX);
+  macID.toUpperCase();
+  String AP_NameString = "Toni" + macID;
 
-  // WiFI.begin([ssid], [passkey]) initiates a WiFI connection
-  // to the stated [ssid], using the [passkey] as a WPA, WPA2,
-  // or WEP passphrase.
-  WiFi.begin(WiFiSSID, WiFiPSK);
+  char AP_NameChar[AP_NameString.length() + 1];
+  memset(AP_NameChar, 0, AP_NameString.length() + 1);
 
-  // Use the WiFi.status() function to check if the ESP8266
-  // is connected to a WiFi network.
-  while (WiFi.status() != WL_CONNECTED)
-  {
-    // Blink the on-board LED
-    digitalWrite(ESP8266_OnBoardLED, ledStatus); // Write LED high/low
-    ledStatus = (ledStatus == HIGH) ? LOW : HIGH;
+  for (int i=0; i<AP_NameString.length(); i++)
+    AP_NameChar[i] = AP_NameString.charAt(i);
 
-    // Delays allow the ESP8266 to perform critical tasks
-    // defined outside of the sketch. These tasks include
-    // setting up, and maintaining, a WiFi connection.
-    delay(100);
-    // Potentially infinite loops are generally dangerous.
-    // Add delays -- allowing the processor to perform other
-    // tasks -- wherever possible.
-  }
+  WiFi.softAP(AP_NameChar, WiFiAPPSK);
 }
+
 
 void initHardware()
 {
   Serial.begin(115200);
-  pinMode(ESP8266_ButtonOne, INPUT);
-  pinMode(ESP8266_ButtonTwo, INPUT);
   pinMode(ESP8266_OnBoardLED, OUTPUT);
+  pinMode(ESP8266_LED_Green, OUTPUT);
+  pinMode(ESP8266_LED_Blue, OUTPUT);
+  pinMode(ESP8266_LED_Red, OUTPUT);
   digitalWrite(ESP8266_OnBoardLED, LOW);
+  digitalWrite(ESP8266_LED_Green, LOW);
+  digitalWrite(ESP8266_LED_Blue, LOW);
+  digitalWrite(ESP8266_LED_Red, LOW);
+  
 }
 
 void setup(){
   initHardware();
-  connectWiFi();
+  server.begin();
+  setupWiFi();
 }
+
 ///////////////////////
 // Ping the Thing    //
 ///////////////////////
-void loop(){
-  
-  // Onboard LED turns on when we enter, it'll go off when we 
-  // successfully GET data.
-  digitalWrite(ESP8266_OnBoardLED, HIGH);
-  WiFiClient client;
-  
-  if (digitalRead(ESP8266_ButtonOne) == HIGH){
-    if (!client.connect(ledOn, httpPort))
-    {
-      return;    
-    }
+void loop() 
+{
+  // Check if a client has connected
+  WiFiClient client = server.available();
+  if (!client) {
+    return;
   }
 
-  else if (digitalRead(ESP8266_ButtonTwo) == HIGH){
-    if (!client.connect(ledOff, httpPort))
-    {
-      return;    
-    }
-  }
+  // Read the first line of the request
+  String req = client.readStringUntil('\r');
+  Serial.println(req);
+  client.flush();
 
-  digitalWrite(ESP8266_OnBoardLED, LOW);
+  // Match the request
+  int valGreen = -1; //Input for Green LED
+  int valRed = -1; //Input for Red LED
+  int valBlue = -1; //Input for Blue LED
+  
+  if (req.indexOf("/green/0") != -1)
+    valGreen = 1; // Will write Green LED high
+  else if (req.indexOf("/green/1") != -1)
+    valGreen = 0; // Will write Green LED low
+  else if (req.indexOf("/red/0") != -1)
+    valRed = 1; // Will write Red LED high
+  else if (req.indexOf("/red/1") != -1)
+    valRed = 0; // Will write Red LED low
+  else if (req.indexOf("/blue/0") != -1)
+    valRed = 1; // Will write Blue LED high 
+  else if (req.indexOf("/blue/1") != -1)
+    valRed = 0; // Will write Blue LED low 
+  // Otherwise request will be invalid. We'll say as much in HTML
+
+  // Set LEDs according to the request
+  if (valGreen >= 0){
+    digitalWrite(ESP8266_LED_Green, valGreen);
+  }
+  else if (valRed >= 0){
+    digitalWrite(ESP8266_LED_Red, valRed);
+  }
+  else if (valBlue >= 0){
+    digitalWrite(ESP8266_LED_Blue, valBlue);
+  }
+  
+  client.flush();
+
+  // Prepare the response. Start with the common header:
+  String s = "HTTP/1.1 200 OK\r\n";
+  s += "Content-Type: text/html\r\n\r\n";
+  s += "<!DOCTYPE HTML>\r\n<html>\r\n";
+  // If we're setting the LEDs, print out a message saying we did
+  if (valGreen >= 0 || valRed >= 0 || valBlue >= 0)
+  {
+    s += "Green = ";
+    s += (valGreen)?"off":"on";
+    s += "; ";
+    s += "Red = ";
+    s += (valRed)?"off":"on";
+    s += "; ";
+    s += "Blue = ";
+    s += (valBlue)?"off":"on";
+  }
+  else
+  {
+    s += "Invalid Request.<br> Try /green/1, /green/0, /red/1, /red/0, /blue/1, or /blue/0.";
+  }
+  s += "</html>\n";
+
+  // Send the response to the client
+  client.print(s);
+  delay(1);
+
 }
 

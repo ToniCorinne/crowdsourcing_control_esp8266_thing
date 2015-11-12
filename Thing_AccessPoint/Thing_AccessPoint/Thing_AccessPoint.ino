@@ -57,7 +57,7 @@ void setupWiFi()
   String macID = String(mac[WL_MAC_ADDR_LENGTH - 2], HEX) +
                  String(mac[WL_MAC_ADDR_LENGTH - 1], HEX);
   macID.toUpperCase();
-  String AP_NameString = "ESP8266 Thing - YOUR NAME" + macID;
+  String AP_NameString = "ESP8266 Thing - Toni" + macID;
 
   char AP_NameChar[AP_NameString.length() + 1];
   memset(AP_NameChar, 0, AP_NameString.length() + 1);
