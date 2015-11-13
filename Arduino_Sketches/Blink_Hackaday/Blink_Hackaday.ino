@@ -3,7 +3,7 @@
 HackaDay Super Conference Blink_Hackaday
 Toni Klopfenstein @ SparkFun Electronics
 OCtober 2015
-<github repository address>
+www.github.com/sparkfun/crowdsourcing_control_esp8266_thing
 
 Intro sketch to test basic features of the ESP8266 Thing.
 
