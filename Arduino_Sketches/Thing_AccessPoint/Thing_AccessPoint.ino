@@ -2,7 +2,7 @@
 HackaDay Super Conference Phant_Get
 Toni Klopfenstein @ SparkFun Electronics
 OCtober 2015
-<github repository address>
+www.github.com/sparkfun/crowdsourcing_control_esp8266_thing
 
 Sketch to host a basic site on the ESP8266 Thing.
 
@@ -25,6 +25,7 @@ Distributed as-is; no warranty is given.
 //////////////////////
 // WiFi Definitions //
 //////////////////////
+//Choose a password for your access point
 const char WiFiAPPSK[] = "superconference15";
 
 /////////////////////
@@ -32,32 +33,29 @@ const char WiFiAPPSK[] = "superconference15";
 /////////////////////
 const int ESP8266_LED = 4; // External LED
 const int ESP8266_Analog = A0; // The only analog pin on the Thing
-const int ESP8266_Button = 12; // Button
 
 WiFiServer server(80);
 
+//Hardware Intializiation function
 void initHardware()
 {
-  Serial.begin(115200);
-  pinMode(ESP8266_Button, INPUT);
   pinMode(ESP8266_LED, OUTPUT);
   digitalWrite(ESP8266_LED, LOW);
-  // Don't need to set ANALOG_PIN as input, 
-  // that's all it can be.
+
 }
 
+//Create WiFi network with a unique ssid
 void setupWiFi()
 {
   WiFi.mode(WIFI_AP);
 
-  // Do a little work to get a unique-ish name. Append the
-  // last two bytes of the MAC (HEX'd) to "Thing-":
   uint8_t mac[WL_MAC_ADDR_LENGTH];
   WiFi.softAPmacAddress(mac);
   String macID = String(mac[WL_MAC_ADDR_LENGTH - 2], HEX) +
                  String(mac[WL_MAC_ADDR_LENGTH - 1], HEX);
   macID.toUpperCase();
-  String AP_NameString = "ESP8266 Thing - Toni" + macID;
+  //Add your name here to differentiate WiFi networks
+  String AP_NameString = "<YOUR NAME> " + macID;
 
   char AP_NameChar[AP_NameString.length() + 1];
   memset(AP_NameChar, 0, AP_NameString.length() + 1);
@@ -68,6 +66,7 @@ void setupWiFi()
   WiFi.softAP(AP_NameChar, WiFiAPPSK);
 }
 
+//Set up loop
 void setup() 
 {
   initHardware();
@@ -112,16 +111,13 @@ void loop()
   // If we're setting the LED, print out a message saying we did
   if (val >= 0)
   {
-    s += "LED is now ";
+    s += "LED is ";
     s += (val)?"on":"off";
   }
   else if (val == -2)
   { // If we're reading pins, print out those values:
     s += "Analog Pin = ";
     s += String(analogRead(ESP8266_Analog));
-    s += "<br>"; // Go to the next line.
-    s += "Digital Pin 12 = ";
-    s += String(digitalRead(ESP8266_Button));
   }
   else
   {
@@ -132,8 +128,6 @@ void loop()
   // Send the response to the client
   client.print(s);
   delay(1);
-  Serial.println("Client disonnected");
-
   // The client will actually be disconnected 
   // when the function returns and 'client' object is detroyed
 }
