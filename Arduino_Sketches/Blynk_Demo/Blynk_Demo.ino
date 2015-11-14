@@ -45,7 +45,7 @@ char auth[] = "64a41877dee64ba497d4ba701cd4fd5a";
 void setup() 
 {
   
-  Blynk.begin(auth, "SSID", "Password");
+  Blynk.begin(auth, "hackaday", "hackaday"); //Auth token, Wifi Network name, Network password
 }
 
 //Control the Thing via the app

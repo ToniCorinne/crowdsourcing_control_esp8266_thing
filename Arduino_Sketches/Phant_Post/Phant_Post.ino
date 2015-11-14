@@ -27,8 +27,8 @@ Distributed as-is; no warranty is given.
 //////////////////////
 // WiFi Definitions //
 //////////////////////
-const char WiFiSSID[] = "sparkfun-guest";
-const char WiFiPSK[] = "sparkfun6333";
+const char WiFiSSID[] = "hackaday"; //Wifi ID
+const char WiFiPSK[] = "hackaday"; //Wifi password
 
 /////////////////////
 // Pin Definitions //
