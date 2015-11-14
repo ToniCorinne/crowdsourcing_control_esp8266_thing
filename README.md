@@ -10,9 +10,9 @@ Repository Contents
 
 Resources
 ---------
-* [Hackaday.io project page]()
-* [ESP8266 Thing Hookup Guide]()
-* [Parts wishlist]()
+* [Hackaday.io project page](https://hackaday.io/project/8254-crowdsourcing-control-with-the-esp8266-thing)
+* [ESP8266 Thing Hookup Guide](https://learn.sparkfun.com/tutorials/esp8266-thing-development-board-hookup-guide)
+
 
 License
 -------
